@@ -21,39 +21,42 @@
 		document.querySelector(".fs-screen").classList.add("active");
 	});
 
-    let fileShare = {};
-    socket.on("fs-meta", function(metadata){
-        fileShare.metadata = metadata;
-        fileShare.transmitted = 0;
-        fileShare.buffer = [];
+	let fileShare = {};
 
-        let el = document.createElement('div')
-        el.classList.add('item')
-        el.innerHTML = `
-            <div class ='progress'>0%</div>
-            <div class ='filename'>${metadata.filename}</div>
-        `
-        document.querySelector('.files-list').appendChild(el);
+	socket.on("fs-meta",function(metadata){
+		fileShare.metadata = metadata;
+		fileShare.transmitted = 0;
+		fileShare.buffer = [];
 
-        fileShare.progress_node = el.querySelector('.progress')
-        socket.emit('fs-start', {
-            uid:senderID
-        });
-    });
+		let el = document.createElement("div");
+		el.classList.add("item");
+		el.innerHTML = `
+				<div class="progress">0%</div>
+				<div class="filename">${metadata.filename}</div>
+		`;
+		document.querySelector(".files-list").appendChild(el);
 
-    socket.on('fs-share', function(buffer){
-        fileShare.buffer.push(buffer);
-        fileShare.transmitted += buffer.byteLength;
-        fileShare.progress_node.innerText = Math.trunc(fileShare.transmitted / fileShare.metadata.total_buffer_size * 100) + '%'
-        if (fileShare.transmitted == fileShare.metadata.total_buffer_size) {
-            download(new Blob(fileShare.buffer), fileShare.metadata.filename);
-            fileShare = {};
-        } else {
-            socket.emit('fs-start', {
-                uid:senderID
-            });
-        }
+		fileShare.progrss_node = el.querySelector(".progress");
 
-    })
+		socket.emit("fs-start",{
+			uid:sender_uid
+		});
+	});
 
-})()
+	socket.on("fs-share",function(buffer){
+		console.log("Buffer", buffer);
+		fileShare.buffer.push(buffer);
+		fileShare.transmitted += buffer.byteLength;
+		fileShare.progrss_node.innerText = Math.trunc(fileShare.transmitted / fileShare.metadata.total_buffer_size * 100) + "%"
+		if(fileShare.transmitted == fileShare.metadata.total_buffer_size){
+			console.log("Download file: ", fileShare);
+			download(new Blob(fileShare.buffer), fileShare.metadata.filename);
+			fileShare = {};
+		} else {
+			socket.emit("fs-start",{
+				uid:sender_uid
+			});
+		}
+	});
+
+})();
