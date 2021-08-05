@@ -2,7 +2,7 @@
   "name": "fileshare",
   "version": "1.0.0",
   "description": "",
-  "main": "code.js",
+  "main": "index.js",
   "scripts": {
     "start": "node server.js"
   },
